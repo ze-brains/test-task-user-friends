@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\User;
+use App\Models\RecommendedFriend;
 use Illuminate\Console\Command;
 
 
@@ -39,26 +40,35 @@ class RecommendedFriends extends Command
      */
     public function handle()
     {
-        $id = 3;
-        $user = User::find($id);
         $users = User::all();
-        $users = $users->except($id);
+        foreach ($users as $user) {
+            $id = $user->id;
+            $users = $users->except($id);
+            $friends = $user->usersFriends;
 
-        $friends = $user->usersFriends;
+            $nonfriends = $users->diff($friends);
 
-        $nonfriends = $users->diff($friends);
+            $result = $nonfriends->map(function ($item) use ($user, $friends) {
+                $onePerson = $friends->pluck('friend_id');
+                $anotherPerson = $item->usersFriends->pluck('friend_id');
+                //общие друзья
+                $personsRate = ($onePerson->intersect($anotherPerson))->count();
+                if ($personsRate > 0) {
+                    if (null !== (RecommendedFriend::where('user_id', $user->id)->where('friend_id', $item->id)->first())) {
+                        $record = ['user_id' => $user->id, 'friend_id' => $item->id, 'rate' => $personsRate];
+                        //записываем в таблицу рекомендованных друзей
+                        RecommendedFriend::create($record);
+                        return true;
+                    }
+                } return false;
+            });
+        }
 
-        $result = $nonfriends->map(function ($item) use ($user, $friends) {
-            $onePerson = $friends->pluck('friend_id');
-            $anotherPerson = $item->usersFriends->pluck('friend_id');
-            //общие друзья
-            $personsRate = ($onePerson->intersect($anotherPerson))->count();
-            if ($personsRate > 0) {
-                $record = ['user_id' => $user->id, 'recommendedfriend_id' => $item->id, 'rate' => $personsRate];
-                //запись record в таблицу recommended_friends
-                //...
-                return true;
-            } return false;
-        });
+        //получаем таблицу рекомендованных друзей
+        $table = RecommendedFriend::all()->toArray();
+        $this->info('Рекомендованные друзья:');
+        $headers = ['User_id','friend_id', 'rate'];
+        $this->table($headers, $table);
+
     }
 }
