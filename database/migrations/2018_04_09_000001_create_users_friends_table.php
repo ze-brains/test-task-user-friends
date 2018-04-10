@@ -10,7 +10,7 @@ class CreateUsersFriendsTable extends Migration
      * Schema table name to migrate
      * @var string
      */
-    public $set_schema_table = 'users_friends';
+    public $set_schema_table = 'user_friends';
 
     /**
      * Run the migrations.
@@ -26,17 +26,17 @@ class CreateUsersFriendsTable extends Migration
             $table->unsignedInteger('user_id')->nullable()->default(null);
             $table->unsignedInteger('friend_id')->nullable()->default(null);
 
-            $table->index(["user_id"], 'users_friends_user_id_foreign');
+            $table->index(["user_id"], 'user_friends_user_id_foreign');
 
-            $table->index(["friend_id"], 'users_friends_friend_id_foreign');
+            $table->index(["friend_id"], 'user_friends_friend_id_foreign');
 
 
-            $table->foreign('friend_id', 'users_friends_friend_id_foreign')
+            $table->foreign('friend_id', 'user_friends_friend_id_foreign')
                 ->references('id')->on('users')
                 ->onDelete('cascade')
                 ->onUpdate('restrict');
 
-            $table->foreign('user_id', 'users_friends_user_id_foreign')
+            $table->foreign('user_id', 'user_friends_user_id_foreign')
                 ->references('id')->on('users')
                 ->onDelete('cascade')
                 ->onUpdate('restrict');
