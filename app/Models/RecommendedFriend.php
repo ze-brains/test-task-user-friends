@@ -11,4 +11,5 @@ class RecommendedFriends extends Model
         'friend_id',
         'rate',
     ];
+
 }
