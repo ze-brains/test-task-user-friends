@@ -39,6 +39,26 @@ class RecommendedFriends extends Command
      */
     public function handle()
     {
-        //
+        $id = 3;
+        $user = User::find($id);
+        $users = User::all();
+        $users = $users->except($id);
+
+        $friends = $user->usersFriends;
+
+        $nonfriends = $users->diff($friends);
+
+        $result = $nonfriends->map(function ($item) use ($user, $friends) {
+            $onePerson = $friends->pluck('friend_id');
+            $anotherPerson = $item->usersFriends->pluck('friend_id');
+            //общие друзья
+            $personsRate = ($onePerson->intersect($anotherPerson))->count();
+            if ($personsRate > 0) {
+                $record = ['user_id' => $user->id, 'recommendedfriend_id' => $item->id, 'rate' => $personsRate];
+                //запись record в таблицу recommended_friends
+                //...
+                return true;
+            } return false;
+        });
     }
 }
