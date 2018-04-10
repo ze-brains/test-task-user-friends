@@ -13,12 +13,12 @@ class UserFriend extends Model
 
     public function user()
     {
-        return $this->belongsTo('App\Models\User', 'user_id');
+        return $this->belongsToMany('App\Models\User', 'users','user_id');
     }
 
     public function friend()
     {
-        return $this->belongsTo('App\Models\User', 'friend_id');
+        return $this->belongsToMany('App\Models\User', 'users', 'friend_id', 'id');
     }
 
 }

@@ -20,14 +20,14 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    public function userFriends()
+    public function usersFriends()
     {
-        return $this->hasMany('App\Models\UserFriend', 'user_id');
+        return $this->hasMany('App\Models\UserFriend', 'user_id', 'id');
     }
 
     public function userFriendUsers()
     {
-        return $this->hasMany('App\Models\UserFriend', 'friend_id');
+        return $this->hasMany('App\Models\UserFriend', 'friend_id', 'id');
     }
 
 }
