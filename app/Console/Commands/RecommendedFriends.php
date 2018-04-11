@@ -42,32 +42,39 @@ class RecommendedFriends extends Command
     {
         $users = User::all();
         foreach ($users as $user) {
+            //получаем id текущего usera
             $id = $user->id;
+            //исключаем его из анализа, так как он сам себе друг
             $users = $users->except($id);
+            //выбираем друзей текущего usera
             $friends = $user->usersFriends;
-
+            //выбираем тех, кто еще не является другом usera
             $nonfriends = $users->diff($friends);
 
-            $result = $nonfriends->map(function ($item) use ($user, $friends) {
+            //для каждого из возможных друзей вычисляем $rate
+            $result[] = $nonfriends->map(function ($item) use ($user, $friends) {
                 $onePerson = $friends->pluck('friend_id');
                 $anotherPerson = $item->usersFriends->pluck('friend_id');
-                //общие друзья
+
+                //количество общих друзей текущего usera и его возможных друзей
                 $personsRate = ($onePerson->intersect($anotherPerson))->count();
-                if ($personsRate > 0) {
+                if ($personsRate) {
                     if (null !== (RecommendedFriend::where('user_id', $user->id)->where('friend_id', $item->id)->first())) {
                         $record = ['user_id' => $user->id, 'friend_id' => $item->id, 'rate' => $personsRate];
-                        //записываем в таблицу рекомендованных друзей
-                        RecommendedFriend::create($record);
-                        return true;
+
+                        //записываем в таблицу рекомендованных друзей текущему user
+                        //RecommendedFriend::create($record);
+                        return ['user_id' => $user->id, 'friend_id' => $item->id, 'rate' => $personsRate];
                     }
-                } return false;
+                } return;
+
             });
         }
 
         //получаем таблицу рекомендованных друзей
         $table = RecommendedFriend::all()->toArray();
         $this->info('Рекомендованные друзья:');
-        $headers = ['User_id','friend_id', 'rate'];
+        $headers = ['User_id','Friend_id', 'Rate'];
         $this->table($headers, $table);
 
     }

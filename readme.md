@@ -12,6 +12,6 @@
     DB_DATABASE=zebrains_task
     DB_USERNAME=root
     DB_PASSWORD=
-
+    Запустить миграции.
 7. Восстановить дамп из файла sqldump.sql.
 8. Запустить приложение в директории проекта из консоли командой php artisan rec:friends
